@@ -5,9 +5,25 @@ using UnityEngine;
 
 public class Bird : MonoBehaviour
 {
+    private static Bird instance;
+
+    public static Bird GetInstance(){
+        return instance;
+    }
+    
+    public event  EventHandler OnDied;
+    public event  EventHandler OnStartedPlaying;
+
     private Rigidbody2D rigidbody2D;
 
     private const float JUMP_AMOUNT = 100f;
+    private State state;
+
+    private enum State {
+        WaitingToStart,
+        Playing,
+        Dead,
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -16,15 +32,34 @@ public class Bird : MonoBehaviour
 
     void Awake()
     {
+        instance = this;
         rigidbody2D = GetComponent<Rigidbody2D>();
+        rigidbody2D.bodyType = RigidbodyType2D.Static;
+        state = State.WaitingToStart;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
-        {
-            Jump();
+        switch(state){
+        default: 
+        case State.WaitingToStart:
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            {
+                state = State.Playing;
+                rigidbody2D.bodyType = RigidbodyType2D.Dynamic;
+                Jump();
+                if(OnStartedPlaying != null) OnStartedPlaying(this, EventArgs.Empty);
+            }
+            break;
+        case State.Playing:
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            {
+                Jump();
+            }
+            break;
+        case State.Dead:
+            break;
         }
     }
 
@@ -36,5 +71,7 @@ public class Bird : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log("Collision");
+        rigidbody2D.bodyType = RigidbodyType2D.Static;
+        if(OnDied != null ) OnDied(this, EventArgs.Empty);
     }
 }
