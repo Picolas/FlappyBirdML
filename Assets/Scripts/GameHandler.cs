@@ -8,8 +8,9 @@ public class GameHandler : MonoBehaviour
     void Start()
     {
         Debug.Log("GameHandler.Start");
+        Score.Start();
         
-        GameObject gameObject = new GameObject("Pipe", typeof(SpriteRenderer));
+        //GameObject gameObject = new GameObject("Pipe", typeof(SpriteRenderer));
         //gameObject.GetComponent<SpriteRenderer>().sprite = GameAssets.getInstance().pipeSprite;
     }
 

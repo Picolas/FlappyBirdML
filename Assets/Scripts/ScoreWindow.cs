@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class ScoreWindow : MonoBehaviour {
 
-    private Text highscoreText;
-    private Text scoreText;
+    public Text highscoreText;
+    public Text scoreText;
 
     private void Awake() {
         scoreText = transform.Find("scoreText").GetComponent<Text>();
@@ -14,7 +14,7 @@ public class ScoreWindow : MonoBehaviour {
     }
 
     private void Start() {
-        //highscoreText.text = "HIGHSCORE: " + Score.GetHighscore().ToString();
+        highscoreText.text = Score.GetHighscore().ToString();
         Bird.GetInstance().OnDied += ScoreWindow_OnDied;
         Bird.GetInstance().OnStartedPlaying += ScoreWindow_OnStartedPlaying;
         Hide();
@@ -30,7 +30,6 @@ public class ScoreWindow : MonoBehaviour {
 
     private void Update() {
         scoreText.text = Level.GetInstance().GetPipesPassedCount().ToString();
-        Debug.Log("super");
     }
 
     private void Hide() {
