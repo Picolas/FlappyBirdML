@@ -579,6 +579,8 @@ GameObject:
   - component: {fileID: 434954123}
   - component: {fileID: 434954125}
   - component: {fileID: 434954124}
+  - component: {fileID: 434954127}
+  - component: {fileID: 434954126}
   m_Layer: 0
   m_Name: Bird
   m_TagString: Untagged
@@ -775,6 +777,36 @@ MonoBehaviour:
   m_UseChildSensors: 1
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
+--- !u!114 &434954126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434954116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2902496c0120472b90269f94a0aec7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Record: 0
+  NumStepsToRecord: 0
+  DemonstrationName: 
+  DemonstrationDirectory: 
+--- !u!114 &434954127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434954116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DecisionPeriod: 1
+  TakeActionsBetweenDecisions: 1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1275,6 +1307,7 @@ MonoBehaviour:
   pfPipeBottom: {fileID: 8048870092588687888, guid: 4ad92067422944fb4846a7e30098bd16, type: 3}
   pfPipeHead: {fileID: 4648772093852030687, guid: 4719f782da8bb4b5c9ba40314d88ed09, type: 3}
   pfGround: {fileID: 5158588051196195841, guid: ec7fc2d16dd012b4da2c0edad9506d92, type: 3}
+  pfPipeCheckpoint: {fileID: 1964474082783256304, guid: f294a00578fbb7442babf36585fef7d0, type: 3}
 --- !u!4 &881065952
 Transform:
   m_ObjectHideFlags: 0

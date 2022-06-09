@@ -53,6 +53,7 @@ public class Level : MonoBehaviour
     {
           instance =  this;
           pipeList = new List<Pipe>(); 
+          pipeCompletedList = new List<PipeCompleted>();
           SpawnFirstGround();
           pipeSpawnTimerMax = 1f;
           SetDifficulty(Difficulty.Easy);
@@ -79,10 +80,17 @@ public class Level : MonoBehaviour
 
     void createDoublePipes(float y,  float size, float xPosition)
     {
-        CreatePipe(y - size * .5f, xPosition, true); 
-        CreatePipe(CAMERA_ORTHO_SIZE * 2f - y - size * .5f, xPosition, false); 
+        Pipe pipeBottom = CreatePipe(y - size * .5f, xPosition, true); 
+        Pipe pipeHead = CreatePipe(CAMERA_ORTHO_SIZE * 2f - y - size * .5f, xPosition, false); 
         pipesSpawned++;
         Debug.Log(pipesSpawned);
+        
+        pipeCompletedList.Add(new PipeCompleted {
+            pipeHead = pipeHead,
+            pipeBottom = pipeBottom,
+            y = y,
+            size = size,
+        });
 
         SetDifficulty(GetDifficulty());
     }
@@ -153,7 +161,7 @@ public class Level : MonoBehaviour
 
     } 
 
-    void CreatePipe(float height, float xPosition, bool createBottom) 
+    Pipe CreatePipe(float height, float xPosition, bool createBottom) 
     {
         // Pipe head
         Transform pipeHead = Instantiate(GameAssets.getInstance().pfPipeHead);
@@ -190,8 +198,17 @@ public class Level : MonoBehaviour
         pipeBottomBoxCollider.size = new Vector2(PIPE_WIDTH, height);
         pipeBottomBoxCollider.offset = new Vector2(0f, height *  0.5f);
 
-        Pipe pipe = new Pipe(pipeHead, pipeBottom, createBottom); 
+        Pipe pipe = new Pipe(pipeHead, pipeBottom, createBottom);
         pipeList.Add(pipe);
+        
+        if (createBottom) {
+            Transform pipeCheckpoint = Instantiate(GameAssets.getInstance().pfPipeCheckpoint);
+            pipeCheckpoint.localScale = new Vector3(.1f, size);
+            pipeCheckpoint.parent = pipeBottom;
+            pipeCheckpoint.localPosition = new Vector3(0, height + size * .5f);
+        }
+
+        return pipe;
     }
 
     public int GetPipesSpawned(){
@@ -295,8 +312,8 @@ public class Level : MonoBehaviour
 
         public Pipe pipeBottom;
         public Pipe pipeHead;
-        public float gapY;
-        public float gapSize;
+        public float y;
+        public float size;
 
     }
     

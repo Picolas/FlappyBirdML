@@ -76,9 +76,13 @@ public class Bird : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("Collision");
-        rigidbody2D.bodyType = RigidbodyType2D.Static;
-        if(OnDied != null ) OnDied(this, EventArgs.Empty);
+        if (collision.CompareTag("Checkpoint")) {
+            Debug.Log("Checkpoint");
+        } else {
+            Debug.Log("Collision");
+            rigidbody2D.bodyType = RigidbodyType2D.Static;
+            if(OnDied != null ) OnDied(this, EventArgs.Empty);
+        }
     }
     
     public void Reset() {

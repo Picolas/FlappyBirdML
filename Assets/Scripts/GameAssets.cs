@@ -20,4 +20,5 @@ public class GameAssets : MonoBehaviour
     public Transform pfPipeBottom;
     public Transform pfPipeHead;
     public Transform pfGround;
+    public Transform pfPipeCheckpoint;
 }

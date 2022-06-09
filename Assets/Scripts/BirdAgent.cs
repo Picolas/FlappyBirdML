@@ -65,10 +65,6 @@ public class BirdAgent : Agent
         if (actions.DiscreteActions[0] == 1) {
             bird.Jump();
         }
-
-        //AddReward(10f / MaxStep);
-
-        //Debug.Log(GetCumulativeReward());
     }
     
     
