@@ -17,6 +17,8 @@ public class Level : MonoBehaviour
     private const float BIRD_X_POSITION = 0f;
     private static Level instance;
     private State state;
+    
+    public event EventHandler OnPipePassed;
 
     public static Level GetInstance(){
         return instance;
@@ -29,6 +31,7 @@ public class Level : MonoBehaviour
     private float size; // temps entre les spawns
     private int pipesSpawned;
     private int pipesPassedCount;
+    private List<PipeCompleted> pipeCompletedList;
 
     
 
@@ -236,6 +239,7 @@ public class Level : MonoBehaviour
             pipe.Move();
             if(isToTheRightOfBird && pipe.GetXPosition() <= BIRD_X_POSITION && pipe.IsBottom()){
                 pipesPassedCount++;
+                OnPipePassed?.Invoke(this, EventArgs.Empty);
             } 
             if (pipe.GetXPosition() < PIPE_DESTROY_X_POSITION)
             { 
@@ -253,10 +257,10 @@ public class Level : MonoBehaviour
     
 
     // SIngle pipe
-    class Pipe
+    public class Pipe
     {
-        private Transform pipeHeadTransform;
-        private Transform pipeBottomTransform;
+        public Transform pipeHeadTransform;
+        public Transform pipeBottomTransform;
         private bool isBottom; 
 
         public Pipe(Transform pipeHeadTransform, Transform pipeBottomTransform, bool isBottom)
@@ -285,5 +289,36 @@ public class Level : MonoBehaviour
             Destroy(this.pipeHeadTransform.gameObject);
             Destroy(this.pipeBottomTransform.gameObject); 
         }
+    }
+    
+    public class PipeCompleted {
+
+        public Pipe pipeBottom;
+        public Pipe pipeHead;
+        public float gapY;
+        public float gapSize;
+
+    }
+    
+    // Fonction mlAgent
+    private PipeCompleted GetPipeCompletedWithPipe(Pipe pipe) {
+        for (int i = 0; i < pipeCompletedList.Count; i++) {
+            PipeCompleted pipeCompleted = pipeCompletedList[i];
+            if (pipeCompleted.pipeBottom == pipe || pipeCompleted.pipeHead == pipe) {
+                return pipeCompleted;
+            }
+        }
+        return null;
+    }
+    
+    public PipeCompleted GetNextPipeComplete() {
+        for (int i = 0; i < pipeList.Count; i++) {
+            Pipe pipe = pipeList[i];
+            if (pipe.pipeBottomTransform != null && pipe.GetXPosition() > BIRD_X_POSITION && pipe.IsBottom()) {
+                PipeCompleted pipeComplete = GetPipeCompletedWithPipe(pipe);
+                return pipeComplete;
+            }
+        }
+        return null;
     }
 }

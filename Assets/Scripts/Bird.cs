@@ -29,6 +29,10 @@ public class Bird : MonoBehaviour
     {
         
     }
+    
+    public float GetVelocityY() {
+        return rigidbody2D.velocity.y;
+    }
 
     void Awake()
     {
@@ -65,7 +69,7 @@ public class Bird : MonoBehaviour
         }
     }
 
-    void Jump()
+    public void Jump()
     {
         rigidbody2D.velocity = Vector2.up * JUMP_AMOUNT;
     }
@@ -75,5 +79,12 @@ public class Bird : MonoBehaviour
         Debug.Log("Collision");
         rigidbody2D.bodyType = RigidbodyType2D.Static;
         if(OnDied != null ) OnDied(this, EventArgs.Empty);
+    }
+    
+    public void Reset() {
+        rigidbody2D.velocity = Vector2.zero;
+        rigidbody2D.bodyType = RigidbodyType2D.Static;
+        transform.position = Vector3.zero;
+        state = State.WaitingToStart;
     }
 }
