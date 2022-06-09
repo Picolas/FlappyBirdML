@@ -19,4 +19,5 @@ public class GameAssets : MonoBehaviour
     public Sprite pipeSprite;
     public Transform pfPipeBottom;
     public Transform pfPipeHead;
+    public Transform pfGround;
 }

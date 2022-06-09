@@ -11,7 +11,9 @@ public class Level : MonoBehaviour
     private const float PIPE_BOTTOM_SCALE = 39.06276f;
     private const float PIPE_MOVE_SPEED = 30f;
     private const float PIPE_DESTROY_X_POSITION = -100f;
-    private const float PIPE_SPAWN_X_POSITION = +100f; //L"opposé de Destroy"
+    private const float PIPE_SPAWN_X_POSITION = +100f; //L"opposÃ© de Destroy"
+    private const float GROUND_DESTROY_X_POSITION = -195.5f;
+    private const float GROUND_SPAWN_X_POSITION = +100f;
     private const float BIRD_X_POSITION = 0f;
     private static Level instance;
     private State state;
@@ -20,6 +22,7 @@ public class Level : MonoBehaviour
         return instance;
     }
 
+    private List<Transform> groundList;
     private List<Pipe> pipeList;
     private float pipeSpawnTimer;
     private float pipeSpawnTimerMax;
@@ -29,7 +32,7 @@ public class Level : MonoBehaviour
 
     
 
-    //Gérer la difficulté 
+    //GÃ©rer la difficultÃ© 
     public enum Difficulty {
         Easy,
         Medium,
@@ -47,6 +50,7 @@ public class Level : MonoBehaviour
     {
           instance =  this;
           pipeList = new List<Pipe>(); 
+          SpawnFirstGround();
           pipeSpawnTimerMax = 1f;
           SetDifficulty(Difficulty.Easy);
           state = State.WaitingToStart;
@@ -65,6 +69,7 @@ public class Level : MonoBehaviour
         if(state == State.Playing){
             HandlePipeMovement();
             HandlePipeSpawning();
+            HandleGroundMove();
         }
         
     }
@@ -77,6 +82,43 @@ public class Level : MonoBehaviour
         Debug.Log(pipesSpawned);
 
         SetDifficulty(GetDifficulty());
+    }
+
+    private void SpawnFirstGround()
+    {
+        groundList = new List<Transform>();
+        Transform ground;
+        float groundY = -52.9f;
+        float groundWidth = 193.9f;
+        ground = Instantiate(GameAssets.getInstance().pfGround, new Vector3(0, groundY, 0), Quaternion.identity);
+        groundList.Add(ground);
+        ground = Instantiate(GameAssets.getInstance().pfGround, new Vector3(groundWidth, groundY, 0), Quaternion.identity);
+        groundList.Add(ground);
+        ground = Instantiate(GameAssets.getInstance().pfGround, new Vector3(groundWidth * 2f, groundY, 0), Quaternion.identity);
+        groundList.Add(ground);
+    }
+    
+    private void HandleGroundMove()
+    {
+        foreach (Transform ground in groundList)
+        {
+            ground.position += new Vector3(-1, 0, 0) * PIPE_MOVE_SPEED * Time.deltaTime;
+
+            if (ground.position.x < GROUND_DESTROY_X_POSITION)
+            {
+                float rightXPosition = -100f;
+                for (int i = 0; i < groundList.Count; i++)
+                {
+                    if (groundList[i].position.x > rightXPosition)
+                    {
+                        rightXPosition = groundList[i].position.x;
+                    }
+                }
+                
+                float groundWidth = 193.9f;
+                ground.position = new Vector3(rightXPosition + groundWidth, ground.position.y, ground.position.z);
+            }
+        }
     }
 
     private void SetDifficulty(Difficulty difficulty){
@@ -175,7 +217,7 @@ public class Level : MonoBehaviour
         if(pipeSpawnTimer < 0){
             //Le temps pour faire apparaitre un nouveau pipe
             pipeSpawnTimer += pipeSpawnTimerMax; 
-            //On veut rendre aléatoire la hauteur des deux pipes opposés et les garder dans une certaine fourchette
+            //On veut rendre alÃ©atoire la hauteur des deux pipes opposÃ©s et les garder dans une certaine fourchette
             float heightEdgeLimit = 10f;
             float minHeight = size * .5f + heightEdgeLimit;
             float totalHeight =  CAMERA_ORTHO_SIZE * 2f;
@@ -204,10 +246,10 @@ public class Level : MonoBehaviour
         }
     }
 
-    //Gérer la difficulté
+    //GÃ©rer la difficultÃ©
 
     
-    //On retourne le nombre de pipes passés pour calculer le score 
+    //On retourne le nombre de pipes passÃ©s pour calculer le score 
     
 
     // SIngle pipe
