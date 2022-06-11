@@ -31,7 +31,7 @@ public class Level : MonoBehaviour
     private float size; // temps entre les spawns
     private int pipesSpawned;
     private int pipesPassedCount;
-    private List<PipeCompleted> pipeCompletedList;
+    private List<PipeFull> pipeFullList;
 
     
 
@@ -53,7 +53,7 @@ public class Level : MonoBehaviour
     {
           instance =  this;
           pipeList = new List<Pipe>(); 
-          pipeCompletedList = new List<PipeCompleted>();
+          pipeFullList = new List<PipeFull>();
           SpawnFirstGround();
           pipeSpawnTimerMax = 1f;
           SetDifficulty(Difficulty.Easy);
@@ -85,8 +85,8 @@ public class Level : MonoBehaviour
         pipesSpawned++;
         Debug.Log(pipesSpawned);
         
-        pipeCompletedList.Add(new PipeCompleted {
-            pipeHead = pipeHead,
+        pipeFullList.Add(new PipeFull {
+            pipeTop = pipeHead,
             pipeBottom = pipeBottom,
             y = y,
             size = size,
@@ -308,32 +308,32 @@ public class Level : MonoBehaviour
         }
     }
     
-    public class PipeCompleted {
+    public class PipeFull {
 
         public Pipe pipeBottom;
-        public Pipe pipeHead;
+        public Pipe pipeTop;
         public float y;
         public float size;
 
     }
     
     // Fonction mlAgent
-    private PipeCompleted GetPipeCompletedWithPipe(Pipe pipe) {
-        for (int i = 0; i < pipeCompletedList.Count; i++) {
-            PipeCompleted pipeCompleted = pipeCompletedList[i];
-            if (pipeCompleted.pipeBottom == pipe || pipeCompleted.pipeHead == pipe) {
-                return pipeCompleted;
+    private PipeFull GetPipeFullWithPipe(Pipe pipe) {
+        for (int i = 0; i < pipeFullList.Count; i++) {
+            PipeFull pipeFull = pipeFullList[i];
+            if (pipeFull.pipeBottom == pipe || pipeFull.pipeTop == pipe) {
+                return pipeFull;
             }
         }
         return null;
     }
     
-    public PipeCompleted GetNextPipeComplete() {
+    public PipeFull GetNextPipeFull() {
         for (int i = 0; i < pipeList.Count; i++) {
             Pipe pipe = pipeList[i];
             if (pipe.pipeBottomTransform != null && pipe.GetXPosition() > BIRD_X_POSITION && pipe.IsBottom()) {
-                PipeCompleted pipeComplete = GetPipeCompletedWithPipe(pipe);
-                return pipeComplete;
+                PipeFull pipeFull = GetPipeFullWithPipe(pipe);
+                return pipeFull;
             }
         }
         return null;

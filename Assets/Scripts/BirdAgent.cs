@@ -10,7 +10,7 @@ public class BirdAgent : Agent
     
     [SerializeField] private Level level;
     private Bird bird;
-    private bool isJumpInputDown;
+    private bool jumpButtonActivated;
     
     void Awake() {
         bird = GetComponent<Bird>();
@@ -24,7 +24,7 @@ public class BirdAgent : Agent
     }
     
     private void Level_OnPipePassed(object sender, System.EventArgs e) {
-        AddReward(1f);
+        AddReward(2f);
     }
     
     void Bird_OnDied(object sender, System.EventArgs e) {
@@ -35,7 +35,7 @@ public class BirdAgent : Agent
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) {
-            isJumpInputDown = true;
+            jumpButtonActivated = true;
         }
     }
 
@@ -49,25 +49,42 @@ public class BirdAgent : Agent
     {
         float gameHeight = 100f;
         float birdHeight = (bird.transform.position.y + (gameHeight / 2f)) / gameHeight;
+
+        //Debug.Log("birdHeight" + birdHeight);
+        // On renvoit la hauteur du bird
         sensor.AddObservation(birdHeight);
 
         float pipeSpawnXPosition = 100f;
-        Level.PipeCompleted pipeComplete = level.GetNextPipeComplete();
-        if (pipeComplete != null && pipeComplete.pipeBottom != null && pipeComplete.pipeBottom.pipeBottomTransform != null) {
-            sensor.AddObservation(pipeComplete.pipeBottom.GetXPosition() / pipeSpawnXPosition);
-        } else {
-            sensor.AddObservation(1f);
+        // On recupère la prochaine pipe haut et bas
+        Level.PipeFull pipeFull = level.GetNextPipeFull();
+        
+        if (pipeFull != null && pipeFull.pipeBottom != null && pipeFull.pipeBottom.pipeBottomTransform != null) {
+            // On renvoit le milieu du pipe (là ou il faut aller)
+            sensor.AddObservation(pipeFull.pipeBottom.GetXPosition() / pipeSpawnXPosition);
+        } else
+        {
+            Debug.Log("test else");
+            // Sinon on renvoit le middle
+            sensor.AddObservation(0.5f);//1f
         }
-
+        
+        // On renvoit le milieu du pipe (là ou il faut aller)
+        //sensor.AddObservation(pipeFull.pipeBottom.GetXPosition() / pipeSpawnXPosition);
+        
+        // On renvoit la largeur du bird
         sensor.AddObservation(bird.GetVelocityY() / 200f);
     }
     
     
     public override void OnActionReceived(ActionBuffers actions) {
-        // opn le recompense si il fait une action
-        AddReward(0.2f);
+        // on le recompense si il fait une action
+        //AddReward(0.2f);
+
+        Debug.Log("Discrete action 0 : " + actions.DiscreteActions[0]);
         
-        if (actions.DiscreteActions[0] == 1) {
+        if (actions.DiscreteActions[0] == 1)
+        {
+            Debug.Log("AI Jump");
             bird.Jump();
         }
     }
@@ -76,10 +93,12 @@ public class BirdAgent : Agent
     {
         if (collision.CompareTag("Checkpoint")) {
             Debug.Log("Checkpoint AI");
-            AddReward(1f);
+            // ON le récompense si il passe une pipe
+            AddReward(2f);
         } else {
             
             Debug.Log("Collision AI");
+            // On le sanctionne si il ne passe pas
             SetReward(-1f);
             EndEpisode();
             
@@ -89,8 +108,15 @@ public class BirdAgent : Agent
     
     public override void Heuristic(in ActionBuffers actionsOut) {
         ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
-        discreteActions[0] = isJumpInputDown ? 1 : 0;
 
-        isJumpInputDown = false;
+        if (jumpButtonActivated)
+        {
+            discreteActions[0] = 1;
+        } else
+        {
+            discreteActions[0] = 0;
+        }
+
+        jumpButtonActivated = false;
     }
 }

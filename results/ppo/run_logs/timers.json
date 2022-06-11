@@ -1,0 +1,47 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1654959339",
+        "python_version": "3.8.5 (tags/v3.8.5:580fbb0, Jul 20 2020, 15:57:54) [MSC v.1924 64 bit (AMD64)]",
+        "command_line_arguments": "C:\\Users\\Picolas\\Documents\\Rattrapage Unity Nicolas Oumar\\SansML\\FlappyBirdML\\venv\\Scripts\\mlagents-learn --force",
+        "mlagents_version": "0.29.0",
+        "mlagents_envs_version": "0.29.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "1.7.1+cu110",
+        "numpy_version": "1.21.2",
+        "end_time_seconds": "1654959370"
+    },
+    "total": 31.262331700000004,
+    "count": 1,
+    "self": 0.0052825000000034095,
+    "children": {
+        "run_training.setup": {
+            "total": 0.09023539999999985,
+            "count": 1,
+            "self": 0.09023539999999985
+        },
+        "TrainerController.start_learning": {
+            "total": 31.1668138,
+            "count": 1,
+            "self": 0.0002889999999879933,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 31.166515600000004,
+                    "count": 1,
+                    "self": 31.166515600000004
+                },
+                "trainer_threads": {
+                    "total": 8.000000022434506e-07,
+                    "count": 1,
+                    "self": 8.000000022434506e-07
+                },
+                "TrainerController._save_models": {
+                    "total": 8.400000005792663e-06,
+                    "count": 1,
+                    "self": 8.400000005792663e-06
+                }
+            }
+        }
+    }
+}

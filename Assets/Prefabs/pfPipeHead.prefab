@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4648772093852030687}
   - component: {fileID: 6384969330005255984}
   - component: {fileID: 1075168168231229100}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: pfPipeHead
   m_TagString: Wall
   m_Icon: {fileID: 0}
