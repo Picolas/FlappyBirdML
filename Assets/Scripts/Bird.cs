@@ -79,9 +79,11 @@ public class Bird : MonoBehaviour
         if (collision.CompareTag("Checkpoint")) {
             Debug.Log("Checkpoint");
         } else {
+            
             Debug.Log("Collision");
             rigidbody2D.bodyType = RigidbodyType2D.Static;
             if(OnDied != null ) OnDied(this, EventArgs.Empty);
+            
         }
     }
     

@@ -44,6 +44,7 @@ public class BirdAgent : Agent
         bird.Reset();
     }
 
+   
     public override void CollectObservations(VectorSensor sensor)
     {
         float gameHeight = 100f;
@@ -61,9 +62,27 @@ public class BirdAgent : Agent
         sensor.AddObservation(bird.GetVelocityY() / 200f);
     }
     
+    
     public override void OnActionReceived(ActionBuffers actions) {
+        // opn le recompense si il fait une action
+        AddReward(0.2f);
+        
         if (actions.DiscreteActions[0] == 1) {
             bird.Jump();
+        }
+    }
+    
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Checkpoint")) {
+            Debug.Log("Checkpoint AI");
+            AddReward(1f);
+        } else {
+            
+            Debug.Log("Collision AI");
+            SetReward(-1f);
+            EndEpisode();
+            
         }
     }
     
