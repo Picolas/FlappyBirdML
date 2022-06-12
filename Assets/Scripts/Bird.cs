@@ -12,7 +12,7 @@ public class Bird : MonoBehaviour
     }
     
     public event  EventHandler OnDied;
-    public event  EventHandler OnStartedPlaying;
+    public event  EventHandler OnStartPlay;
 
     private Rigidbody2D rigidbody2D;
 
@@ -20,9 +20,9 @@ public class Bird : MonoBehaviour
     private State state;
 
     private enum State {
-        WaitingToStart,
+        WaitStart,
         Playing,
-        Dead,
+        GameOver,
     }
     // Start is called before the first frame update
     void Start()
@@ -39,7 +39,7 @@ public class Bird : MonoBehaviour
         instance = this;
         rigidbody2D = GetComponent<Rigidbody2D>();
         rigidbody2D.bodyType = RigidbodyType2D.Static;
-        state = State.WaitingToStart;
+        state = State.WaitStart;
     }
 
     // Update is called once per frame
@@ -47,13 +47,13 @@ public class Bird : MonoBehaviour
     {
         switch(state){
         default: 
-        case State.WaitingToStart:
+        case State.WaitStart:
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             {
                 state = State.Playing;
                 rigidbody2D.bodyType = RigidbodyType2D.Dynamic;
                 Jump();
-                if(OnStartedPlaying != null) OnStartedPlaying(this, EventArgs.Empty);
+                if(OnStartPlay != null) OnStartPlay(this, EventArgs.Empty);
             }
             break;
         case State.Playing:
@@ -64,7 +64,7 @@ public class Bird : MonoBehaviour
             
             transform.eulerAngles = new Vector3(0, 0, rigidbody2D.velocity.y * 0.2f);
             break;
-        case State.Dead:
+        case State.GameOver:
             break;
         }
     }
@@ -88,9 +88,10 @@ public class Bird : MonoBehaviour
     }
     
     public void Reset() {
+        // On reset tout le bird avec le reset de ses coordonnées, movement etc
         rigidbody2D.velocity = Vector2.zero;
         rigidbody2D.bodyType = RigidbodyType2D.Static;
         transform.position = Vector3.zero;
-        state = State.WaitingToStart;
+        state = State.WaitStart;
     }
 }

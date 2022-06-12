@@ -8,10 +8,10 @@ public class WaitingStartWindow : MonoBehaviour
     void Start()
     {
         Show();
-        Bird.GetInstance().OnStartedPlaying += WaitingStartWindow_OnStartedPlaying;
+        Bird.GetInstance().OnStartPlay += WaitingStartWindowOnStartPlay;
     }
 
-    private void WaitingStartWindow_OnStartedPlaying(object sender, System.EventArgs e)
+    private void WaitingStartWindowOnStartPlay(object sender, System.EventArgs e)
     {
         Hide();
     }

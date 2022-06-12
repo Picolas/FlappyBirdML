@@ -16,7 +16,7 @@ public class GameOverWindow : MonoBehaviour
     }
 
     private void Start(){
-        Bird.GetInstance().OnDied += Bird_OnDied;
+        Bird.GetInstance().OnDied += OnDied;
         Hide();
     }
 
@@ -27,7 +27,7 @@ public class GameOverWindow : MonoBehaviour
         }
     }
 
-    private void Bird_OnDied(object sender, System.EventArgs e){
+    private void OnDied(object sender, System.EventArgs e){
         scoreText.text =  Level.GetInstance().GetPipesPassedCount().ToString();
         Show();
     }

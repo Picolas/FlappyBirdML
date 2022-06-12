@@ -19,7 +19,7 @@ public class BirdAgent : Agent
     // Start is called before the first frame update
     void Start()
     {
-        bird.OnDied += Bird_OnDied;
+        bird.OnDied += OnDied;
         level.OnPipePassed += Level_OnPipePassed;
     }
     
@@ -28,7 +28,7 @@ public class BirdAgent : Agent
         // ON reward dès qu'on passe un obstacle (on le fait egalement dans le colision avec le checkpoint)
     }
     
-    void Bird_OnDied(object sender, System.EventArgs e) {
+    void OnDied(object sender, System.EventArgs e) {
         gameObject.SetActive(false);
     }
 
@@ -60,9 +60,10 @@ public class BirdAgent : Agent
         // On recupère la prochaine pipe haut et bas
         Level.PipeFull pipeFull = level.GetNextPipeFull();
         
-        if (pipeFull != null && pipeFull.pipeBottom != null && pipeFull.pipeBottom.pipeBottomTransform != null) {
+        // ON avait une erreur null, besoin de check si ça exite
+        if (pipeFull != null && pipeFull.pBottom != null && pipeFull.pBottom.pBottomTransform != null) {
             // On renvoit le milieu du pipe (là ou il faut aller)
-            sensor.AddObservation(pipeFull.pipeBottom.GetXPosition() / pipeSpawnXPosition);
+            sensor.AddObservation(pipeFull.pBottom.GetXPosition() / pipeSpawnXPosition);
         } else
         {
             Debug.Log("test else");
@@ -71,7 +72,7 @@ public class BirdAgent : Agent
         }
         
         // On renvoit le milieu du pipe (là ou il faut aller)
-        //sensor.AddObservation(pipeFull.pipeBottom.GetXPosition() / pipeSpawnXPosition);
+        //sensor.AddObservation(pipeFull.pBottom.GetXPosition() / pipeSpawnXPosition);
         
         // On renvoit la largeur du bird
         sensor.AddObservation(bird.GetVelocityY() / 200f);

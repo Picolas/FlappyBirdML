@@ -16,11 +16,11 @@ public class ScoreWindow : MonoBehaviour {
     private void Start() {
         highscoreText.text = Score.GetHighscore().ToString();
         Bird.GetInstance().OnDied += ScoreWindow_OnDied;
-        Bird.GetInstance().OnStartedPlaying += ScoreWindow_OnStartedPlaying;
+        Bird.GetInstance().OnStartPlay += ScoreWindowOnStartPlay;
         Hide();
     }
 
-    private void ScoreWindow_OnStartedPlaying(object sender, System.EventArgs e) {
+    private void ScoreWindowOnStartPlay(object sender, System.EventArgs e) {
         Show();
     }
 

@@ -5,16 +5,16 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    private const float CAM_ORTHO_SIZE = 50f;
+    private const float SIZE_CAMERA = 50f;
     private const float PIPE_WIDTH = 0.26f;
     private const float PIPE_HEAD_HEIGHT = 4.5f;
     private const float PIPE_BOTTOM_SCALE = 39.06276f;
     private const float PIPE_MOVE_SPEED = 30f;
-    private const float PIPE_DESTROY_X_POSITION = -100f;
+    private const float PIPE_DESTROY_X_POSITION = -100f; // L'endroit ou on va détruire la pipe (juste en dehors de l'écran à gauche)
     private const float PIPE_SPAWN_X_POSITION = +100f; //L"opposé de Destroy"
-    private const float GROUND_DESTROY_X_POSITION = -195.5f;
+    private const float GROUND_DESTROY_X_POSITION = -195.5f; // L'endroit ou on va détruire le sol (juste en dehors de l'écran à gauche)
     private const float GROUND_SPAWN_X_POSITION = +100f;
-    private const float BIRD_X_POSITION = 0f;
+    private const float BIRD_X_POSITION = 0f; // Initialisation du bird en position 0f
     private static Level instance;
     private State state;
     
@@ -24,30 +24,32 @@ public class Level : MonoBehaviour
         return instance;
     }
 
-    private List<Transform> groundList;
-    private List<Pipe> pipeList;
+    private List<Transform> groundList; // list des ground
+    private List<Pipe> pipeList; // list des pipes
     private float pSpawnTimer;
     private float pSpawnTimerMax;
     private float size; // temps entre les spawns
-    private int pSpawned;
-    private int pPassedCount;
-    private List<PipeFull> pipeFullList;
+    private int pSpawned; // Nombre de pipe spawned
+    private int pPassedCount; // Nombre de pipe passé
+    private List<PipeFull> pipeFullList; // Pipe head et bottom
 
+    /*CREATION DES ENUMS*/
     
-
     //Gérer la difficulté 
     public enum Difficulty {
-        Easy,
-        Medium,
-        Hard, 
-        Impossible,
+        Simple,
+        Moyen,
+        Hardcore, 
+        Supersonic,
     }
 
+    // Les diférents état du jeu
     public enum State {
         WaitingToStart,
         Playing,
         BirdDead,
     }
+    /* FIN CREATION DES ENUMS*/
     
     private void Awake()
     {
@@ -56,7 +58,7 @@ public class Level : MonoBehaviour
           pipeFullList = new List<PipeFull>();
           SpawnFirstGround();
           pSpawnTimerMax = 1f;
-          SetDifficulty(Difficulty.Easy);
+          SetDifficulty(Difficulty.Simple);
           state = State.WaitingToStart;
     }
 
@@ -65,7 +67,7 @@ public class Level : MonoBehaviour
         //createDoublePipes(50f, 20f, 20f);
         //createDoublePipes(50f, 30f, 0f);
         Bird.GetInstance().OnDied += Bird_OnDied;
-        Bird.GetInstance().OnStartedPlaying += Bird_OnStartedPlaying;
+        Bird.GetInstance().OnStartPlay += BirdOnStartPlay;
     }
 
     void Update()
@@ -77,17 +79,28 @@ public class Level : MonoBehaviour
         }
         
     }
-
+    
+    /*
+    void createFlippedPipe(float y, float size, float xPosition)
+    {
+        Pipe pipeBottom = CreatePipe(y - size, xPosition, true); 
+        Pipe pipeHead = CreatePipe(SIZE_CAMERA * 2f * .5f, xPosition / 2, false); 
+        pSpawned++;
+        Debug.Log(pSpawned);
+    }
+    */
+    
+    
     void createDoublePipes(float y,  float size, float xPosition)
     {
         Pipe pipeBottom = CreatePipe(y - size * .5f, xPosition, true); 
-        Pipe pipeHead = CreatePipe(CAM_ORTHO_SIZE * 2f - y - size * .5f, xPosition, false); 
+        Pipe pipeHead = CreatePipe(SIZE_CAMERA * 2f - y - size * .5f, xPosition, false); 
         pSpawned++;
         Debug.Log(pSpawned);
         
         pipeFullList.Add(new PipeFull {
-            pipeTop = pipeHead,
-            pipeBottom = pipeBottom,
+            pTop = pipeHead,
+            pBottom = pipeBottom,
             y = y,
             size = size,
         });
@@ -132,35 +145,40 @@ public class Level : MonoBehaviour
         }
     }
 
+    //Gérer la difficulté
+    //On retourne le nombre de pipes passés pour calculer le score 
     private void SetDifficulty(Difficulty difficulty){
         switch(difficulty){
-            case Difficulty.Easy:
-            pSpawnTimerMax = 1.2f;
+            case Difficulty.Simple:
+                pSpawnTimerMax = 1.28f;
                 size = 45f;
                 break;
-             case Difficulty.Medium:
+             case Difficulty.Moyen:
                 size = 40f;
-                pSpawnTimerMax = 1.1f;
+                pSpawnTimerMax = 1.18f;
                 break;
-             case Difficulty.Hard:
+             case Difficulty.Hardcore:
                 size = 35f;
-                pSpawnTimerMax = 1.0f;
+                pSpawnTimerMax = 1.08f;
                 break;
-             case Difficulty.Impossible:
+             case Difficulty.Supersonic:
                 size = 25f;
-                pSpawnTimerMax = 0.9f;
+                pSpawnTimerMax = 1.0f;
                 break;
         }
     }
-
+    
+    
+    // retourne la difficulté en fonction du nombre de pipe spawn
     private Difficulty GetDifficulty(){
-        if(pSpawned >= 30) return Difficulty.Impossible;
-        if(pSpawned >= 20) return Difficulty.Hard;
-        if(pSpawned >= 10) return Difficulty.Medium;
-        return Difficulty.Easy;
+        if(pSpawned >= 90) return Difficulty.Supersonic;
+        if(pSpawned >= 50) return Difficulty.Hardcore;
+        if(pSpawned >= 25) return Difficulty.Moyen;
+        return Difficulty.Simple;
 
     } 
 
+    // Créé une pipe simple
     Pipe CreatePipe(float height, float xPosition, bool createBottom) 
     {
         // Pipe head
@@ -169,11 +187,11 @@ public class Level : MonoBehaviour
         float pipeHeadYPosition;
         if (createBottom)
         {
-            pipeHeadYPosition = -CAM_ORTHO_SIZE + height - PIPE_HEAD_HEIGHT * 0.5f; 
+            pipeHeadYPosition = -SIZE_CAMERA + height - PIPE_HEAD_HEIGHT * 0.5f; 
         }
         else
         {
-            pipeHeadYPosition = +CAM_ORTHO_SIZE - height + PIPE_HEAD_HEIGHT * 0.5f;  
+            pipeHeadYPosition = +SIZE_CAMERA - height + PIPE_HEAD_HEIGHT * 0.5f;  
         }
         pipeHead.position = new Vector3(xPosition, pipeHeadYPosition);
         // Pipe bottom
@@ -182,11 +200,11 @@ public class Level : MonoBehaviour
         float pipeBottomYPosition;
         if (createBottom)
         { 
-            pipeBottomYPosition = -CAM_ORTHO_SIZE;
+            pipeBottomYPosition = -SIZE_CAMERA;
         }
         else 
         {
-            pipeBottomYPosition = +CAM_ORTHO_SIZE;
+            pipeBottomYPosition = +SIZE_CAMERA;
             pipeBottom.localScale = new Vector3(PIPE_BOTTOM_SCALE, -1f, PIPE_BOTTOM_SCALE);
         }
         pipeBottom.position = new Vector3(xPosition, pipeBottomYPosition );
@@ -220,7 +238,7 @@ public class Level : MonoBehaviour
         return this.pPassedCount;
     }
 
-    private void Bird_OnStartedPlaying(object sender, System.EventArgs e){
+    private void BirdOnStartPlay(object sender, System.EventArgs e){
         state = State.Playing;
         //yield return new WaitForSeconds(1) 
     }
@@ -231,6 +249,7 @@ public class Level : MonoBehaviour
     }
 
 
+    // Gère le spawn des pipes
     void ManagePipeSpawning(){
         pSpawnTimer -= Time.deltaTime;
         if(pSpawnTimer < 0){
@@ -239,13 +258,14 @@ public class Level : MonoBehaviour
             //On veut rendre aléatoire la hauteur des deux pipes opposés et les garder dans une certaine fourchette
             float heightEdgeLimit = 10f;
             float minHeight = size * .5f + heightEdgeLimit;
-            float totalHeight =  CAM_ORTHO_SIZE * 2f;
+            float totalHeight =  SIZE_CAMERA * 2f;
             float maxHeight = totalHeight - size * .5f - heightEdgeLimit;
             float height = UnityEngine.Random.Range(minHeight, maxHeight);
             createDoublePipes(height  , size, PIPE_SPAWN_X_POSITION);
         }
     }
 
+    // Gère le movement des pipes 
     void ManagePipeMovement() 
     {
         for (int i = 0; i < pipeList.Count; i++)
@@ -266,35 +286,31 @@ public class Level : MonoBehaviour
         }
     }
 
-    //Gérer la difficulté
-
-    
-    //On retourne le nombre de pipes passés pour calculer le score 
-    
 
     // SIngle pipe
     public class Pipe
     {
-        public Transform pipeHeadTransform;
-        public Transform pipeBottomTransform;
+        // p pour pipe
+        public Transform pHeadTransform;
+        public Transform pBottomTransform;
         private bool isBottom; 
 
-        public Pipe(Transform pipeHeadTransform, Transform pipeBottomTransform, bool isBottom)
+        public Pipe(Transform pHeadTransform, Transform pBottomTransform, bool isBottom)
         {
-             this.pipeHeadTransform = pipeHeadTransform; 
-             this.pipeBottomTransform = pipeBottomTransform;
+             this.pHeadTransform = pHeadTransform; 
+             this.pBottomTransform = pBottomTransform;
              this.isBottom = isBottom;
         }
 
         public void Move()
         {
-            pipeHeadTransform.position += new Vector3(-1, 0, 0) * PIPE_MOVE_SPEED * Time.deltaTime; 
-            pipeBottomTransform .position += new Vector3(-1, 0, 0) * PIPE_MOVE_SPEED * Time.deltaTime; 
+            pHeadTransform.position += new Vector3(-1, 0, 0) * PIPE_MOVE_SPEED * Time.deltaTime; 
+            pBottomTransform .position += new Vector3(-1, 0, 0) * PIPE_MOVE_SPEED * Time.deltaTime; 
         }
 
         public float GetXPosition()
         { 
-            return this.pipeBottomTransform.position.x;
+            return this.pBottomTransform.position.x;
         }
 
         public bool IsBottom(){
@@ -302,15 +318,16 @@ public class Level : MonoBehaviour
         }
         public void DestroySelf()
         {
-            Destroy(this.pipeHeadTransform.gameObject);
-            Destroy(this.pipeBottomTransform.gameObject); 
+            Destroy(this.pHeadTransform.gameObject);
+            Destroy(this.pBottomTransform.gameObject); 
         }
     }
     
+    // Class regroupant les pipe head et bottom, afin de trouvé le chekpoint et la next pipe
     public class PipeFull {
 
-        public Pipe pipeBottom;
-        public Pipe pipeTop;
+        public Pipe pBottom;
+        public Pipe pTop;
         public float y;
         public float size;
 
@@ -320,7 +337,7 @@ public class Level : MonoBehaviour
     private PipeFull GetPipeFullWithPipe(Pipe pipe) {
         for (int i = 0; i < pipeFullList.Count; i++) {
             PipeFull pipeFull = pipeFullList[i];
-            if (pipeFull.pipeBottom == pipe || pipeFull.pipeTop == pipe) {
+            if (pipeFull.pBottom == pipe || pipeFull.pTop == pipe) {
                 return pipeFull;
             }
         }
@@ -330,7 +347,7 @@ public class Level : MonoBehaviour
     public PipeFull GetNextPipeFull() {
         for (int i = 0; i < pipeList.Count; i++) {
             Pipe pipe = pipeList[i];
-            if (pipe.pipeBottomTransform != null && pipe.GetXPosition() > BIRD_X_POSITION && pipe.IsBottom()) {
+            if (pipe.pBottomTransform != null && pipe.GetXPosition() > BIRD_X_POSITION && pipe.IsBottom()) {
                 PipeFull pipeFull = GetPipeFullWithPipe(pipe);
                 return pipeFull;
             }
