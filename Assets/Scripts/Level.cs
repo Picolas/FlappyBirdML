@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    private const float CAMERA_ORTHO_SIZE = 50f;
+    private const float CAM_ORTHO_SIZE = 50f;
     private const float PIPE_WIDTH = 0.26f;
     private const float PIPE_HEAD_HEIGHT = 4.5f;
     private const float PIPE_BOTTOM_SCALE = 39.06276f;
@@ -26,11 +26,11 @@ public class Level : MonoBehaviour
 
     private List<Transform> groundList;
     private List<Pipe> pipeList;
-    private float pipeSpawnTimer;
-    private float pipeSpawnTimerMax;
+    private float pSpawnTimer;
+    private float pSpawnTimerMax;
     private float size; // temps entre les spawns
-    private int pipesSpawned;
-    private int pipesPassedCount;
+    private int pSpawned;
+    private int pPassedCount;
     private List<PipeFull> pipeFullList;
 
     
@@ -55,7 +55,7 @@ public class Level : MonoBehaviour
           pipeList = new List<Pipe>(); 
           pipeFullList = new List<PipeFull>();
           SpawnFirstGround();
-          pipeSpawnTimerMax = 1f;
+          pSpawnTimerMax = 1f;
           SetDifficulty(Difficulty.Easy);
           state = State.WaitingToStart;
     }
@@ -71,9 +71,9 @@ public class Level : MonoBehaviour
     void Update()
     {
         if(state == State.Playing){
-            HandlePipeMovement();
-            HandlePipeSpawning();
-            HandleGroundMove();
+            ManagePipeMovement();
+            ManagePipeSpawning();
+            ManageGroundMove();
         }
         
     }
@@ -81,9 +81,9 @@ public class Level : MonoBehaviour
     void createDoublePipes(float y,  float size, float xPosition)
     {
         Pipe pipeBottom = CreatePipe(y - size * .5f, xPosition, true); 
-        Pipe pipeHead = CreatePipe(CAMERA_ORTHO_SIZE * 2f - y - size * .5f, xPosition, false); 
-        pipesSpawned++;
-        Debug.Log(pipesSpawned);
+        Pipe pipeHead = CreatePipe(CAM_ORTHO_SIZE * 2f - y - size * .5f, xPosition, false); 
+        pSpawned++;
+        Debug.Log(pSpawned);
         
         pipeFullList.Add(new PipeFull {
             pipeTop = pipeHead,
@@ -109,7 +109,7 @@ public class Level : MonoBehaviour
         groundList.Add(ground);
     }
     
-    private void HandleGroundMove()
+    private void ManageGroundMove()
     {
         foreach (Transform ground in groundList)
         {
@@ -135,28 +135,28 @@ public class Level : MonoBehaviour
     private void SetDifficulty(Difficulty difficulty){
         switch(difficulty){
             case Difficulty.Easy:
-            pipeSpawnTimerMax = 1.2f;
+            pSpawnTimerMax = 1.2f;
                 size = 45f;
                 break;
              case Difficulty.Medium:
                 size = 40f;
-                pipeSpawnTimerMax = 1.1f;
+                pSpawnTimerMax = 1.1f;
                 break;
              case Difficulty.Hard:
                 size = 35f;
-                pipeSpawnTimerMax = 1.0f;
+                pSpawnTimerMax = 1.0f;
                 break;
              case Difficulty.Impossible:
                 size = 25f;
-                pipeSpawnTimerMax = 0.9f;
+                pSpawnTimerMax = 0.9f;
                 break;
         }
     }
 
     private Difficulty GetDifficulty(){
-        if(pipesSpawned >= 30) return Difficulty.Impossible;
-        if(pipesSpawned >= 20) return Difficulty.Hard;
-        if(pipesSpawned >= 10) return Difficulty.Medium;
+        if(pSpawned >= 30) return Difficulty.Impossible;
+        if(pSpawned >= 20) return Difficulty.Hard;
+        if(pSpawned >= 10) return Difficulty.Medium;
         return Difficulty.Easy;
 
     } 
@@ -169,11 +169,11 @@ public class Level : MonoBehaviour
         float pipeHeadYPosition;
         if (createBottom)
         {
-            pipeHeadYPosition = -CAMERA_ORTHO_SIZE + height - PIPE_HEAD_HEIGHT * 0.5f; 
+            pipeHeadYPosition = -CAM_ORTHO_SIZE + height - PIPE_HEAD_HEIGHT * 0.5f; 
         }
         else
         {
-            pipeHeadYPosition = +CAMERA_ORTHO_SIZE - height + PIPE_HEAD_HEIGHT * 0.5f;  
+            pipeHeadYPosition = +CAM_ORTHO_SIZE - height + PIPE_HEAD_HEIGHT * 0.5f;  
         }
         pipeHead.position = new Vector3(xPosition, pipeHeadYPosition);
         // Pipe bottom
@@ -182,11 +182,11 @@ public class Level : MonoBehaviour
         float pipeBottomYPosition;
         if (createBottom)
         { 
-            pipeBottomYPosition = -CAMERA_ORTHO_SIZE;
+            pipeBottomYPosition = -CAM_ORTHO_SIZE;
         }
         else 
         {
-            pipeBottomYPosition = +CAMERA_ORTHO_SIZE;
+            pipeBottomYPosition = +CAM_ORTHO_SIZE;
             pipeBottom.localScale = new Vector3(PIPE_BOTTOM_SCALE, -1f, PIPE_BOTTOM_SCALE);
         }
         pipeBottom.position = new Vector3(xPosition, pipeBottomYPosition );
@@ -201,6 +201,7 @@ public class Level : MonoBehaviour
         Pipe pipe = new Pipe(pipeHead, pipeBottom, createBottom);
         pipeList.Add(pipe);
         
+        // On créé le checkpoint au milieu des deux pipes
         if (createBottom) {
             Transform pipeCheckpoint = Instantiate(GameAssets.getInstance().pfPipeCheckpoint);
             pipeCheckpoint.localScale = new Vector3(.1f, size);
@@ -212,14 +213,13 @@ public class Level : MonoBehaviour
     }
 
     public int GetPipesSpawned(){
-        return this.pipesSpawned;
+        return this.pSpawned;
     }
 
     public int GetPipesPassedCount(){
-        return this.pipesPassedCount;
+        return this.pPassedCount;
     }
-    // Start is called before the first frame update
-    
+
     private void Bird_OnStartedPlaying(object sender, System.EventArgs e){
         state = State.Playing;
         //yield return new WaitForSeconds(1) 
@@ -229,25 +229,24 @@ public class Level : MonoBehaviour
         state = State.BirdDead;
         //yield return new WaitForSeconds(1)       
     }
-    // Update is called once per frame
-    
 
-    void HandlePipeSpawning(){
-        pipeSpawnTimer -= Time.deltaTime;
-        if(pipeSpawnTimer < 0){
+
+    void ManagePipeSpawning(){
+        pSpawnTimer -= Time.deltaTime;
+        if(pSpawnTimer < 0){
             //Le temps pour faire apparaitre un nouveau pipe
-            pipeSpawnTimer += pipeSpawnTimerMax; 
+            pSpawnTimer += pSpawnTimerMax; 
             //On veut rendre aléatoire la hauteur des deux pipes opposés et les garder dans une certaine fourchette
             float heightEdgeLimit = 10f;
             float minHeight = size * .5f + heightEdgeLimit;
-            float totalHeight =  CAMERA_ORTHO_SIZE * 2f;
+            float totalHeight =  CAM_ORTHO_SIZE * 2f;
             float maxHeight = totalHeight - size * .5f - heightEdgeLimit;
             float height = UnityEngine.Random.Range(minHeight, maxHeight);
             createDoublePipes(height  , size, PIPE_SPAWN_X_POSITION);
         }
     }
 
-    void HandlePipeMovement() 
+    void ManagePipeMovement() 
     {
         for (int i = 0; i < pipeList.Count; i++)
         {
@@ -255,7 +254,7 @@ public class Level : MonoBehaviour
             bool isToTheRightOfBird = pipe.GetXPosition() > BIRD_X_POSITION;
             pipe.Move();
             if(isToTheRightOfBird && pipe.GetXPosition() <= BIRD_X_POSITION && pipe.IsBottom()){
-                pipesPassedCount++;
+                pPassedCount++;
                 OnPipePassed?.Invoke(this, EventArgs.Empty);
             } 
             if (pipe.GetXPosition() < PIPE_DESTROY_X_POSITION)

@@ -9,9 +9,6 @@ public class GameHandler : MonoBehaviour
     {
         Debug.Log("GameHandler.Start");
         Score.Start();
-        
-        //GameObject gameObject = new GameObject("Pipe", typeof(SpriteRenderer));
-        //gameObject.GetComponent<SpriteRenderer>().sprite = GameAssets.getInstance().pipeSprite;
     }
 
     // Update is called once per frame

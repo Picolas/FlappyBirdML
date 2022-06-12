@@ -25,6 +25,7 @@ public class BirdAgent : Agent
     
     private void Level_OnPipePassed(object sender, System.EventArgs e) {
         AddReward(2f);
+        // ON reward dès qu'on passe un obstacle (on le fait egalement dans le colision avec le checkpoint)
     }
     
     void Bird_OnDied(object sender, System.EventArgs e) {
@@ -42,6 +43,7 @@ public class BirdAgent : Agent
     public override void OnEpisodeBegin()
     {
         bird.Reset();
+        // On reset la position du bird si le bird echoue
     }
 
    
@@ -84,6 +86,7 @@ public class BirdAgent : Agent
         
         if (actions.DiscreteActions[0] == 1)
         {
+            // Si le bird décide que la meilleure action ets le saut, alors il le fait
             Debug.Log("AI Jump");
             bird.Jump();
         }
